@@ -1,35 +1,65 @@
 Total Students = DISTINCTCOUNT(Students[student_id])
 
+Assessment Records = COUNTROWS(Assessments)
+
 Average Marks % =
+AVERAGEX(
+    Assessments,
+    DIVIDE(Assessments[marks_obtained], Assessments[max_marks], 0) * 100
+)
+
+Weighted Marks % =
 DIVIDE(
     SUM(Assessments[marks_obtained]),
     SUM(Assessments[max_marks]),
     0
 ) * 100
 
-Average Attendance % =
-AVERAGE(Attendance[attendance_percentage])
+Average Attendance % = AVERAGE(Attendance[attendance_percentage])
 
 At-Risk Students =
-CALCULATE(
-    DISTINCTCOUNT(Students[student_id]),
-    FILTER(Students, RELATED(vw_student_academic_summary[risk_level]) IN {"High","Medium"})
+COUNTROWS(
+    FILTER(
+        vw_student_academic_summary,
+        vw_student_academic_summary[risk_level] = "High"
+            || vw_student_academic_summary[risk_level] = "Medium"
+    )
 )
 
-Assessment Records = COUNTROWS(Assessments)
+High-Risk Students =
+COUNTROWS(
+    FILTER(vw_student_academic_summary, vw_student_academic_summary[risk_level] = "High")
+)
 
 Pass Rate % =
 DIVIDE(
-    CALCULATE(
-        COUNTROWS(Assessments),
-        FILTER(Assessments, DIVIDE(Assessments[marks_obtained],Assessments[max_marks],0) >= 0.4)
+    COUNTROWS(
+        FILTER(
+            Assessments,
+            DIVIDE(Assessments[marks_obtained], Assessments[max_marks], 0) >= 0.4
+        )
     ),
     COUNTROWS(Assessments),
     0
 ) * 100
+
+Average Marks by Subject % =
+AVERAGEX(
+    Assessments,
+    DIVIDE(Assessments[marks_obtained], Assessments[max_marks], 0) * 100
+)
 
 Completed Interventions =
 CALCULATE(
     COUNTROWS(Interventions),
     Interventions[intervention_status] = "Completed"
 )
+
+Open Interventions =
+CALCULATE(
+    COUNTROWS(Interventions),
+    Interventions[intervention_status] = "Open"
+)
+
+Intervention Completion % =
+DIVIDE([Completed Interventions], COUNTROWS(Interventions), 0) * 100

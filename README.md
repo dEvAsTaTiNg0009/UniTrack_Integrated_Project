@@ -171,7 +171,7 @@ Do not commit `.env`, passwords, API keys, personal student data, `node_modules`
 
 ## 9. Power BI — DO THIS LAST
 
-Use `../UniTrack_PowerBI_Data.xlsx` (or the separately supplied dataset file) for the first visual demo. For a genuine live integration, connect Power BI to the same MySQL database:
+Connect Power BI to the same MySQL database used by Express:
 - Get Data → MySQL database
 - Server: `localhost:3306`
 - Database: `unitrack`
@@ -180,7 +180,7 @@ Use `../UniTrack_PowerBI_Data.xlsx` (or the separately supplied dataset file) fo
 - Create relationships and measures using `powerbi/DAX_Measures.txt`
 - Build pages using `powerbi/PowerBI_Build_Guide.md`
 
-Important: Power BI Desktop is primarily a Windows desktop application. If you are on macOS, use a Windows PC/VM or use the Excel dataset to prepare the report on an available Windows machine. The Power BI service alone may not support every Desktop authoring workflow.
+Important: Power BI Desktop is primarily a Windows desktop application. If you are on macOS, use a Windows PC/VM or an institutional Windows machine. The final report should use the live `unitrack` MySQL database, not an unrelated static dataset. The Power BI service alone may not support every Desktop authoring workflow.
 
 ## Demo flow for viva
 1. Faculty adds a student or records marks in the website.
