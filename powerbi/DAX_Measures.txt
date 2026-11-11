@@ -1,0 +1,35 @@
+Total Students = DISTINCTCOUNT(Students[student_id])
+
+Average Marks % =
+DIVIDE(
+    SUM(Assessments[marks_obtained]),
+    SUM(Assessments[max_marks]),
+    0
+) * 100
+
+Average Attendance % =
+AVERAGE(Attendance[attendance_percentage])
+
+At-Risk Students =
+CALCULATE(
+    DISTINCTCOUNT(Students[student_id]),
+    FILTER(Students, RELATED(vw_student_academic_summary[risk_level]) IN {"High","Medium"})
+)
+
+Assessment Records = COUNTROWS(Assessments)
+
+Pass Rate % =
+DIVIDE(
+    CALCULATE(
+        COUNTROWS(Assessments),
+        FILTER(Assessments, DIVIDE(Assessments[marks_obtained],Assessments[max_marks],0) >= 0.4)
+    ),
+    COUNTROWS(Assessments),
+    0
+) * 100
+
+Completed Interventions =
+CALCULATE(
+    COUNTROWS(Interventions),
+    Interventions[intervention_status] = "Completed"
+)

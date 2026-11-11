@@ -1,0 +1,16 @@
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+flutter_student/.dart_tool/
+flutter_student/build/
+flutter_student/.flutter-plugins
+flutter_student/.flutter-plugins-dependencies
+flutter_student/.metadata
+flutter_student/.idea/
+flutter_student/*.iml
+flutter_student/test/.last_run.json
+build/
+coverage/

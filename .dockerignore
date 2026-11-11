@@ -1,0 +1,12 @@
+node_modules/
+npm-debug.log
+.env
+.git/
+.gitignore
+.DS_Store
+flutter_student/.dart_tool/
+flutter_student/build/
+flutter_student/.idea/
+flutter_student/.metadata
+flutter_student/*.iml
+coverage/
