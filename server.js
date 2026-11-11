@@ -66,6 +66,30 @@ app.put('/api/students/:id', async (req,res) => {
   } catch(e) { res.status(400).json({error:e.code==='ER_DUP_ENTRY'?'Roll number or email already exists':e.message}); }
 });
 
+app.delete('/api/students/:id', async (req,res) => {
+  let connection;
+  try {
+    connection = await db.getConnection();
+    await connection.beginTransaction();
+    const [student] = await connection.query('SELECT student_id FROM Students WHERE student_id=? FOR UPDATE', [req.params.id]);
+    if (!student.length) {
+      await connection.rollback();
+      return res.status(404).json({error:'Student not found'});
+    }
+    await connection.query('DELETE FROM Interventions WHERE student_id=?', [req.params.id]);
+    await connection.query('DELETE FROM Assessments WHERE student_id=?', [req.params.id]);
+    await connection.query('DELETE FROM Attendance WHERE student_id=?', [req.params.id]);
+    await connection.query('DELETE FROM Students WHERE student_id=?', [req.params.id]);
+    await connection.commit();
+    res.json({message:'Student and related academic records deleted',student_id:req.params.id});
+  } catch(e) {
+    if (connection) await connection.rollback();
+    res.status(500).json({error:'Student deletion failed'});
+  } finally {
+    if (connection) connection.release();
+  }
+});
+
 app.post('/api/assessments', async (req,res) => {
   const {assessment_id,student_id,subject_id,assessment_type,marks_obtained,max_marks} = req.body;
   if (!assessment_id || !student_id || !subject_id || marks_obtained==null || max_marks==null)
@@ -95,6 +119,14 @@ app.put('/api/assessments/:id', async (req,res) => {
   } catch(e) { res.status(400).json({error:e.message}); }
 });
 
+app.delete('/api/assessments/:id', async (req,res) => {
+  try {
+    const [result] = await db.query('DELETE FROM Assessments WHERE assessment_id=?', [req.params.id]);
+    if (!result.affectedRows) return res.status(404).json({error:'Assessment not found'});
+    res.json({message:'Assessment deleted',assessment_id:req.params.id});
+  } catch(e) { res.status(500).json({error:'Assessment deletion failed'}); }
+});
+
 app.put('/api/attendance/:studentId/:subjectId', async (req,res) => {
   const pct=Number(req.body.attendance_percentage);
   const classesHeld=Number(req.body.classes_held ?? 100);
@@ -111,6 +143,14 @@ app.put('/api/attendance/:studentId/:subjectId', async (req,res) => {
       [`AT-${req.params.studentId}-${req.params.subjectId}`,req.params.studentId,req.params.subjectId,pct,classesHeld,classesAttended]);
     res.json({message:'Attendance updated'});
   } catch(e) { res.status(400).json({error:e.message}); }
+});
+
+app.delete('/api/attendance/:studentId/:subjectId', async (req,res) => {
+  try {
+    const [result] = await db.query('DELETE FROM Attendance WHERE student_id=? AND subject_id=?', [req.params.studentId, req.params.subjectId]);
+    if (!result.affectedRows) return res.status(404).json({error:'Attendance record not found'});
+    res.json({message:'Attendance deleted',student_id:req.params.studentId,subject_id:req.params.subjectId});
+  } catch(e) { res.status(500).json({error:'Attendance deletion failed'}); }
 });
 
 app.get('/api/assessments', async (req,res) => {
@@ -190,6 +230,14 @@ app.put('/api/interventions/:id', async (req,res) => {
     if (!result.affectedRows) return res.status(404).json({error:'Intervention not found'});
     res.json({message:'Intervention updated',intervention_id:req.params.id});
   } catch(e) { res.status(400).json({error:e.message}); }
+});
+
+app.delete('/api/interventions/:id', async (req,res) => {
+  try {
+    const [result] = await db.query('DELETE FROM Interventions WHERE intervention_id=?', [req.params.id]);
+    if (!result.affectedRows) return res.status(404).json({error:'Intervention not found'});
+    res.json({message:'Intervention deleted',intervention_id:req.params.id});
+  } catch(e) { res.status(500).json({error:'Intervention deletion failed'}); }
 });
 
 app.get('/api/analytics/overview', async (_req,res) => {
